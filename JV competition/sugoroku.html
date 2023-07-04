@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momotetsu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- MapArea -->
+    <!-- <div id="view"></div> -->
+    <div id="myMap" style="position:relative;width: 1000px;height: 600px;"></div>
+    <!-- /MapArea -->
+
+    <!-- サイコロ・カード -->
+    <div class="container">
+        <div class="dice-wrapper">
+            <img id="die-1">
+        </div>
+        <p id="total"></p>
+        <button onclick="roll()">サイコロ</button>
+        <button onclick="moveToRandomLocation()">ぶっとびカード</button>
+
+        <div id="image-container"></div>
+
+    </div>
+
+
+
+    <!-- jQuery&GoogleMapsAPI -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- /jQuery&GoogleMapsAPI -->
+    <script
+        src="https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key=Ag6UeHtT7lqcrvGjQwwsr0uet5uX8iUyj5T6Ugw-xNyEjMB-tbFu_CVdQCvaU9ek"
+        async defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/yamazakidaisuke/BmapQuery/js/BmapQuery.js"></script>
+
+    <!-- javascript -->
+    <script>
+        // サイコロ動画をImagesの変数としておく。
+        let images = [
+            "dice1.png",
+            "dice2.png",
+            "dice3.png",
+            "dice4.png",
+            "dice5.png",
+            "dice6.png"
+        ];
+        let dice = document.querySelectorAll("img");
+        let total = 0; // 合計数を保持する変数
+
+        // 東京駅を最初に表示させる。
+        let map;
+
+        function GetMap() {
+            map = new Bmap("#myMap");
+            map.load({ center: { latitude: 35.6812362, longitude: 139.7671248 } });
+        }
+
+
+        // 最初に東京駅を表示し、その後にサイコロを振る。
+
+        // function displayTokyoStationAndRoll() {
+        //     GetMap(); // 東京駅を表示
+        //     setTimeout(function () {
+        //         roll(); // サイコロを振る
+        //     }, 1000);
+        // }
+        // サイコロ動く時間の表示
+
+        // サイコロを振る
+        function roll() {
+            dice.forEach(function (die) {
+                die.classList.add("shake");
+            });
+
+            setTimeout(function () {
+                dice.forEach(function (die) {
+                    die.classList.remove("shake");
+                });
+                let dieOneValue = Math.floor(Math.random() * 6) + 1;
+                console.log(dieOneValue);
+                document.querySelector("#die-1").setAttribute("src", images[dieOneValue - 1]);
+
+                total += dieOneValue; // 合計数を更新
+
+                let latitude, longitude;
+                switch (total) {
+                    case 1: // 有楽町
+                        latitude = 35.6749;
+                        longitude = 139.7629;
+                        break;
+                    case 2: // 新橋
+                        latitude = 35.6655;
+                        longitude = 139.7514;
+                        break;
+                    case 3: // 浜松町
+                        latitude = 35.6553;
+                        longitude = 139.7572;
+                        break;
+                    case 4: // 田町
+                        latitude = 35.6459;
+                        longitude = 139.7475;
+                        break;
+                    case 5: // 高輪ゲートウェイ
+                        latitude = 35.6309;
+                        longitude = 139.7391;
+                        break;
+                    case 6: // 品川
+                        latitude = 35.6285;
+                        longitude = 139.7388;
+                        displayImage("./shinagawa.png");
+                        break;
+                    case 7: // 大崎
+                        latitude = 35.619955;
+                        longitude = 139.7282131;
+                        break;
+                    case 8: // 五反田
+                        latitude = 35.6261591;
+                        longitude = 139.7210273;
+                        displayImage("./shibuya.png")
+                        break;
+                    case 9: // 目黒
+                        latitude = 35.6285;
+                        longitude = 139.7388;
+                        displayImage("./shibuya.png")
+                        break;
+                    case 10: // 恵比寿
+                        latitude = 35.6408125;
+                        longitude = 139.7110606;
+                        displayImage("./shibuya.png")
+                        break;
+                    case 11: // 渋谷
+                        latitude = 35.6523819;
+                        longitude = 139.7012043;
+                        displayImage("./shibuya.png")
+                        break;
+                    case 12: // 原宿
+                        latitude = 35.6675752;
+                        longitude = 139.7002187;
+                        displayImage("./harajuku.png"); // 原宿に到着したら画像を表示
+                        break;
+                    default:
+                        // Default to Tokyo Station
+                        latitude = 35.6812;
+                        longitude = 139.7661;
+                        total = 0; // 合計数をリセット
+                        break;
+                }
+                let map = new Bmap("#myMap"); // 
+                map.startMap(latitude, longitude, "load", 14); // 
+                let pin = map.pin(latitude, longitude, "#ff0000");
+            }, 1000);
+
+            moveToRandomLocation();
+        }
+
+        // case 0の東京を作る
+        // 12以上のだと数値を２で割る
+
+        // if(total=>12){
+        //     // let num = total/13 ＝% で余りを算出
+        //     // 
+
+        // }
+        // ランダムな位置に移動する
+        function moveToRandomLocation() {
+            // 世界各地の緯度と経度の範囲
+            const minLatitude = -90;
+            const maxLatitude = 90;
+            const minLongitude = -180;
+            const maxLongitude = 180;
+
+            // ランダムな緯度と経度を生成
+            const latitude = Math.random() * (maxLatitude - minLatitude) + minLatitude;
+            const longitude = Math.random() * (maxLongitude - minLongitude) + minLongitude;
+
+            // 生成した位置に移動
+            moveMapToLocation(latitude, longitude);
+        }
+
+        // 特定の位置に地図を移動する
+        function moveMapToLocation(latitude, longitude) {
+            let map = new Bmap("#myMap");
+            map.startMap(latitude, longitude, "load", 14);
+        }
+
+        //     if(もし数字が13以上なら){
+        //    let変数名　=   total%13
+        //    Return 変数名
+        // }
+
+        // 原宿 = 12の場合は特定の行動→終わる形式
+
+
+        // 原宿に到着したら画像を表示
+        function displayImage(imagePath) {
+            // 画像要素を作成
+            let imageContainer = document.getElementById("image-container");
+            let image = document.createElement("img");
+            image.setAttribute("src", imagePath); // 画像のパスを指定
+
+            // 画像要素を表示
+            imageContainer.innerHTML = ""; // 以前の画像があればクリア
+            imageContainer.appendChild(image);
+
+            // 画像をMap全体を覆うようにサイズ調整
+            image.style.position = "absolute";
+
+            // 6秒後に画像を非表示にする
+            setTimeout(function () {
+                imageContainer.innerHTML = ""; // 画像をクリア
+            }, 6000);
+        }
+
+
+
+    </script>
+
+
+</body>
+<script src="sugoroku.js"></script>
+
+
+</html>
